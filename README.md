@@ -19,95 +19,105 @@ python manage.py runserver
 
 Open http://127.0.0.1:8000/ and sign in.
 
-## Deployment (GCP VM + Docker + GHCR)
+## Deployment (GCP VM + host nginx)
 
-Same pattern as Memoria del Alma: GitHub Actions builds an image to **GHCR**, then SSHs into a **GCE VM** and runs `docker compose pull && up`.
+Same machine pattern as Memoria del Alma on this GCE VM:
+
+- Docker runs **only the Django app** on host port **8001**
+- **Host nginx** (already on 80/443) reverse-proxies `health.marianoeramirez.com`
+- **Host Certbot** issues TLS certificates
 
 ```text
-push to main → CI (Django checks) → build/push ghcr.io/<owner>/healthapp → SSH → compose up → migrate
+push to main → CI → build/push ghcr.io/<owner>/healthapp → SSH → compose up → migrate
 ```
 
-Stack on the VM:
+Do **not** bind Docker nginx to 80/443 on this VM — those ports belong to the system nginx used by `app.memoriadelalma.com`.
 
-| Service | Role |
-|---------|------|
-| `healthapp` | Gunicorn + Django (SQLite + media on a Docker volume) |
-| `nginx` | TLS termination, reverse proxy, static/media |
-| `certbot` | Let’s Encrypt renewal |
+### One-time setup on the GCE VM
 
-Domain: `health.marianoeramirez.com`
+SSH user: `marianoramirez353` · example host: `34.171.174.54`
 
-### One-time GCE setup
-
-1. Create a GCE VM (Debian/Ubuntu). Open firewall ports **80** and **443**.
-2. Point a DNS **A** record for `health.marianoeramirez.com` to the VM’s public IP.
-3. Install Docker Engine and the Compose plugin on the VM.
-4. Create a deploy directory (example: `/opt/healthapp`) and copy into it:
-   - `docker-compose.yml`
-   - `deploy/nginx.conf` (and `deploy/nginx.bootstrap.conf` for the first certificate)
-   - `.env` created from `env.example` (set a real `SECRET_KEY` and `HEALTHAPP_IMAGE=ghcr.io/<owner>/healthapp:latest`)
-5. Log the VM into GHCR so it can pull private/public images:
+1. DNS **A** record: `health.marianoeramirez.com` → VM public IP.
+2. Create the deploy directory and files:
 
    ```bash
-   echo "$GHCR_TOKEN" | docker login ghcr.io -u USERNAME --password-stdin
+   mkdir -p ~/healthapp/data/media ~/healthapp/data/staticfiles ~/healthapp/deploy
+   cd ~/healthapp
+   # Copy docker-compose.yml, env.example → .env, deploy/nginx-host*.conf from the repo
+   cp env.example .env
+   # Edit .env: set SECRET_KEY and HEALTHAPP_IMAGE=ghcr.io/marianoeramirez/healthapp:latest
    ```
 
-6. **First TLS certificate** (HTTP-only nginx until certs exist):
+3. Ensure GHCR login (if the image is private):
 
    ```bash
-   # Temporarily use bootstrap nginx (HTTP only)
-   cp deploy/nginx.bootstrap.conf deploy/nginx.conf.active
-   # Or mount bootstrap: edit compose volumes to use nginx.bootstrap.conf once
+   echo "$GHCR_TOKEN" | docker login ghcr.io -u marianoeramirez --password-stdin
+   ```
 
-   docker compose up -d healthapp
-   docker compose run --rm --entrypoint certbot certbot certonly \
-     --webroot --webroot-path /var/www/certbot \
-     -d health.marianoeramirez.com \
-     --email YOUR_EMAIL --agree-tos --no-eff-email
+4. Start the app:
 
-   # Restore full TLS nginx.conf and start nginx + certbot renewal loop
+   ```bash
+   cd ~/healthapp
+   docker compose pull
    docker compose up -d
+   docker compose exec healthapp python manage.py createsuperuser
    ```
 
-7. Create the Django superuser once:
+5. Install the host nginx site (HTTP bootstrap first):
 
    ```bash
-   docker compose exec healthapp python manage.py createsuperuser
+   sudo mkdir -p /var/www/certbot
+   sudo cp ~/healthapp/deploy/nginx-host.bootstrap.conf /etc/nginx/sites-available/healthapp.conf
+   sudo ln -sf /etc/nginx/sites-available/healthapp.conf /etc/nginx/sites-enabled/
+   sudo nginx -t && sudo systemctl reload nginx
+   ```
+
+6. Issue the certificate and enable HTTPS:
+
+   ```bash
+   sudo certbot --nginx -d health.marianoeramirez.com
+   ```
+
+   Certbot will update the site file with SSL. Confirm static/media aliases still point at:
+
+   `/home/marianoramirez353/healthapp/data/staticfiles/` and `.../media/`
+
+7. Reload nginx if you hand-edited anything:
+
+   ```bash
+   sudo nginx -t && sudo systemctl reload nginx
    ```
 
 ### GitHub secrets
 
-Configure these repository secrets for deploy:
-
-| Secret | Purpose |
-|--------|---------|
-| `DEPLOY_SSH_HOST` | GCE VM public IP or hostname |
-| `DEPLOY_SSH_USER` | SSH user (e.g. `ubuntu`) |
+| Secret | Example / purpose |
+|--------|-------------------|
+| `DEPLOY_SSH_HOST` | `34.171.174.54` |
+| `DEPLOY_SSH_USER` | `marianoramirez353` |
 | `DEPLOY_SSH_KEY` | Private key for that user |
-| `DEPLOY_PATH` | Absolute path to the compose directory on the VM |
-
-Image push uses `GITHUB_TOKEN` with `packages: write` (see `.github/workflows/deploy.yml`).
+| `DEPLOY_PATH` | `/home/marianoramirez353/healthapp` |
 
 ### Ongoing deploys
 
-Push to `main`. After CI passes, Deploy builds/pushes the image and on the VM runs:
+Push to `main`. Deploy workflow runs:
 
 ```bash
+cd $DEPLOY_PATH
 docker compose pull
 docker compose up -d
 docker compose exec -T healthapp python manage.py migrate --noinput
 docker image prune -f
 ```
 
-### Useful VM commands
+### Useful commands
 
 ```bash
-docker compose logs -f healthapp
-docker compose exec healthapp python manage.py createsuperuser
-docker compose run --rm certbot renew
+docker compose -f ~/healthapp/docker-compose.yml logs -f healthapp
+curl -I http://127.0.0.1:8001/
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-SQLite database and uploads live in the Docker volume `health_data` (`/data` inside the app container). Back that volume up regularly.
+SQLite + uploads live under `~/healthapp/data/`. Back that directory up regularly.
 
 ## Usage
 
