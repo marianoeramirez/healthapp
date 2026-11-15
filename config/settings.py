@@ -75,14 +75,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': Path(
-            os.environ.get('DATABASE_PATH', str(DATA_DIR / 'db.sqlite3'))
-        ),
+if os.environ.get('POSTGRES_HOST'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': os.environ['POSTGRES_HOST'],
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+            'NAME': os.environ.get('POSTGRES_DB', 'healthapp'),
+            'USER': os.environ.get('POSTGRES_USER', 'healthapp'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': Path(
+                os.environ.get('DATABASE_PATH', str(DATA_DIR / 'db.sqlite3'))
+            ),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {

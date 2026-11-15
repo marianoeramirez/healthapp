@@ -117,7 +117,15 @@ curl -I http://127.0.0.1:8001/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-SQLite + uploads live under `~/healthapp/data/`. Back that directory up regularly.
+Uploads live under `~/healthapp/data/`. Production uses **PostgreSQL** (`POSTGRES_*` in `.env`); local `runserver` still defaults to SQLite when `POSTGRES_HOST` is unset.
+
+On the VM, set the DB password in `~/healthapp/.env`:
+
+```bash
+nano ~/healthapp/.env   # set POSTGRES_PASSWORD=...
+docker compose up -d --force-recreate
+docker compose exec healthapp python manage.py migrate
+```
 
 ## Usage
 
