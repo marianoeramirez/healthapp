@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Médicos · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Médicos</h1>
+    <p>Directorio de médicos y consultorios de la familia.</p>
+  </div>
+  <a class="btn" href="{% url 'doctors:add' %}">Añadir médico</a>
+</div>
+
+<section class="panel" style="margin-bottom: 1rem;">
+  <form method="get" class="filter-bar">
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="Buscar nombre, especialidad o teléfono">
+    <select name="specialty">
+      <option value="">Todas las especialidades</option>
+      {% for specialty in specialties %}
+      <option value="{{ specialty }}" {% if filters.specialty == specialty %}selected{% endif %}>{{ specialty }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">Filtrar</button>
+    <a class="btn btn-secondary" href="{% url 'doctors:list' %}">Limpiar</a>
+  </form>
+</section>
+
+<section class="panel">
+  {% if doctors %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Especialidad</th>
+        <th>Ciudad</th>
+        <th>País</th>
+        <th>Teléfono</th>
+        <th>Descripción</th>
+        <th>Consultas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doctor in doctors %}
+      <tr>
+        <td><a href="{% url 'doctors:detail' doctor.pk %}">{{ doctor.name }}</a></td>
+        <td>{{ doctor.specialty|default:"—" }}</td>
+        <td>{{ doctor.city|default:"—" }}</td>
+        <td>{{ doctor.country|default:"—" }}</td>
+        <td>{{ doctor.phone_number|default:"—" }}</td>
+        <td>{{ doctor.description|truncatewords:12|default:"—" }}</td>
+        <td>{{ doctor.exam_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay médicos con estos filtros.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,223 @@
+# Health Tracker Spanish translations
+# Copyright (C) 2026
+# This file is distributed under the same license as the PACKAGE package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: healthapp\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-15 08:52-0400\n"
+"PO-Revision-Date: 2026-11-15 08:31-0400\n"
+"Last-Translator: \n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\health\forms.py:100
+msgid "The selected health event must belong to the same person."
+msgstr "El evento de salud seleccionado debe pertenecer a la misma persona."
+
+#: .\health\models.py:18
+msgid "first name"
+msgstr "nombre"
+
+#: .\health\models.py:19
+msgid "last name"
+msgstr "apellidos"
+
+#: .\health\models.py:20
+msgid "birth date"
+msgstr "fecha de nacimiento"
+
+#: .\health\models.py:22
+msgid "blood type"
+msgstr "grupo sanguíneo"
+
+#: .\health\models.py:28
+msgid "avatar"
+msgstr "avatar"
+
+#: .\health\models.py:33
+msgid "notes"
+msgstr "notas"
+
+#: .\health\models.py:34 .\health\models.py:97 .\health\models.py:116
+#: .\health\models.py:170
+msgid "created at"
+msgstr "creado el"
+
+#: .\health\models.py:35 .\health\models.py:98 .\health\models.py:117
+#: .\health\models.py:171
+msgid "updated at"
+msgstr "actualizado el"
+
+#: .\health\models.py:39 .\health\models.py:80 .\health\models.py:141
+msgid "person"
+msgstr "persona"
+
+#: .\health\models.py:40
+msgid "people"
+msgstr "personas"
+
+#: .\health\models.py:64
+msgid "Milestone"
+msgstr "Hito"
+
+#: .\health\models.py:65
+msgid "Illness"
+msgstr "Enfermedad"
+
+#: .\health\models.py:66
+msgid "Injury"
+msgstr "Lesión"
+
+#: .\health\models.py:67
+msgid "Surgery"
+msgstr "Cirugía"
+
+#: .\health\models.py:68
+msgid "Allergy"
+msgstr "Alergia"
+
+#: .\health\models.py:69 .\health\models.py:135
+msgid "Other"
+msgstr "Otro"
+
+#: .\health\models.py:72
+msgid "Low"
+msgstr "Baja"
+
+#: .\health\models.py:73
+msgid "Medium"
+msgstr "Media"
+
+#: .\health\models.py:74
+msgid "High"
+msgstr "Alta"
+
+#: .\health\models.py:82 .\health\models.py:160
+msgid "title"
+msgstr "título"
+
+#: .\health\models.py:84
+msgid "event type"
+msgstr "tipo de evento"
+
+#: .\health\models.py:90
+msgid "severity"
+msgstr "gravedad"
+
+#: .\health\models.py:95
+msgid "occurred on"
+msgstr "fecha"
+
+#: .\health\models.py:96 .\health\models.py:115
+msgid "description"
+msgstr "descripción"
+
+#: .\health\models.py:102 .\health\models.py:149
+msgid "health event"
+msgstr "evento de salud"
+
+#: .\health\models.py:103
+msgid "health events"
+msgstr "eventos de salud"
+
+#: .\health\models.py:110
+msgid "name"
+msgstr "nombre"
+
+#: .\health\models.py:111
+msgid "specialty"
+msgstr "especialidad"
+
+#: .\health\models.py:112
+msgid "phone number"
+msgstr "teléfono"
+
+#: .\health\models.py:113
+msgid "city"
+msgstr "ciudad"
+
+#: .\health\models.py:114
+msgid "country"
+msgstr "país"
+
+#: .\health\models.py:121 .\health\models.py:158
+msgid "doctor"
+msgstr "médico"
+
+#: .\health\models.py:122
+msgid "doctors"
+msgstr "médicos"
+
+#: .\health\models.py:130
+msgid "Lab"
+msgstr "Laboratorio"
+
+#: .\health\models.py:131
+msgid "Imaging"
+msgstr "Imagen"
+
+#: .\health\models.py:132
+msgid "Checkup"
+msgstr "Revisión"
+
+#: .\health\models.py:133
+msgid "Specialist"
+msgstr "Especialista"
+
+#: .\health\models.py:134
+msgid "Report / Informe"
+msgstr "Informe"
+
+#: .\health\models.py:150
+msgid "Optional related health event."
+msgstr "Evento de salud relacionado (opcional)."
+
+#: .\health\models.py:162
+msgid "exam type"
+msgstr "tipo de examen"
+
+#: .\health\models.py:167
+msgid "performed on"
+msgstr "realizado el"
+
+#: .\health\models.py:168
+msgid "summary"
+msgstr "resumen"
+
+#: .\health\models.py:169
+msgid "provider"
+msgstr "proveedor"
+
+#: .\health\models.py:175 .\health\models.py:187
+msgid "exam"
+msgstr "examen"
+
+#: .\health\models.py:176
+msgid "exams"
+msgstr "exámenes"
+
+#: .\health\models.py:189
+msgid "file"
+msgstr "archivo"
+
+#: .\health\models.py:190
+msgid "label"
+msgstr "etiqueta"
+
+#: .\health\models.py:191
+msgid "uploaded at"
+msgstr "subido el"
+
+#: .\health\models.py:195
+msgid "exam attachment"
+msgstr "adjunto de examen"
+
+#: .\health\models.py:196
+msgid "exam attachments"
+msgstr "adjuntos de examen"

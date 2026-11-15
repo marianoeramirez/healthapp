@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ doctor.name }} · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ doctor.name }}</h1>
+    <p>
+      {% if doctor.specialty %}{{ doctor.specialty }}{% else %}Sin especialidad{% endif %}
+      {% if doctor.city or doctor.country %}
+        · {% if doctor.city %}{{ doctor.city }}{% endif %}{% if doctor.city and doctor.country %}, {% endif %}{% if doctor.country %}{{ doctor.country }}{% endif %}
+      {% endif %}
+      {% if doctor.phone_number %}· {{ doctor.phone_number }}{% endif %}
+    </p>
+  </div>
+  <a class="btn" href="{% url 'doctors:edit' doctor.pk %}">Editar</a>
+</div>
+
+{% if doctor.description %}
+<section class="panel" style="margin-bottom: 1.25rem;">
+  <h2 style="margin-top: 0; font-size: 1.1rem;">Descripción</h2>
+  <p style="margin: 0; white-space: pre-wrap;">{{ doctor.description }}</p>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 style="margin-top: 0;">Historial de consultas</h2>
+  {% if exams %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Título</th>
+        <th>Persona</th>
+        <th>Tipo</th>
+        <th>Evento</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for exam in exams %}
+      <tr>
+        <td>{{ exam.performed_on|date:"d/m/Y" }}</td>
+        <td><a href="{% url 'exams:detail' exam.pk %}">{{ exam.title }}</a></td>
+        <td><a href="{% url 'people:detail' exam.person_id %}">{{ exam.person }}</a></td>
+        <td>{{ exam.get_exam_type_display }}</td>
+        <td>
+          {% if exam.event %}
+          <a href="{% url 'events:detail' exam.event_id %}">{{ exam.event.title }}</a>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">Todavía no hay exámenes vinculados a este médico.</p>
+  {% endif %}
+</section>
+{% endblock %}

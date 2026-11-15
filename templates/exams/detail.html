@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ exam.title }} · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ exam.title }}</h1>
+    <p>
+      <a href="{% url 'people:detail' exam.person_id %}">{{ exam.person }}</a>
+      · {{ exam.performed_on|date:"d/m/Y" }}
+    </p>
+  </div>
+  <a class="btn" href="{% url 'exams:edit' exam.pk %}">Editar</a>
+</div>
+
+<section class="panel" style="margin-bottom: 1.25rem;">
+  <div class="meta-row">
+    <span class="badge">{{ exam.get_exam_type_display }}</span>
+    {% if exam.doctor %}
+    <span>Médico:
+      <a href="{% url 'doctors:detail' exam.doctor_id %}">{{ exam.doctor }}</a>
+    </span>
+    {% endif %}
+    {% if exam.provider %}<span>Proveedor: {{ exam.provider }}</span>{% endif %}
+    {% if exam.event %}
+    <span>Evento:
+      <a href="{% url 'events:detail' exam.event_id %}">{{ exam.event.title }}</a>
+    </span>
+    {% endif %}
+  </div>
+  {% if exam.summary %}
+  <p style="white-space: pre-wrap; margin-bottom: 0;">{{ exam.summary }}</p>
+  {% else %}
+  <p class="empty" style="padding: 0;">Sin resumen.</p>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2 style="margin-top: 0;">Archivos adjuntos</h2>
+  {% if exam.attachments.all %}
+  <div class="attachment-list">
+    {% for attachment in exam.attachments.all %}
+    <article class="attachment-card">
+      <strong>{{ attachment.label|default:attachment.file.name }}</strong>
+      <div class="meta-row">
+        <span>Subido {{ attachment.uploaded_at|date:"d/m/Y H:i" }}</span>
+        <a href="{{ attachment.file.url }}" target="_blank" rel="noopener">Descargar</a>
+      </div>
+      {% if attachment.is_image %}
+      <a href="{{ attachment.file.url }}" data-lightbox>
+        <img src="{{ attachment.file.url }}" alt="{{ attachment.label|default:attachment.file.name }}">
+      </a>
+      {% elif attachment.is_pdf %}
+      <iframe class="pdf-frame" src="{{ attachment.file.url }}" title="{{ attachment.label|default:attachment.file.name }}"></iframe>
+      {% else %}
+      <p style="color: var(--muted); margin: 0;">Vista previa no disponible para este tipo de archivo.</p>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">Este examen no tiene archivos adjuntos.</p>
+  {% endif %}
+</section>
+
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <button type="button" id="lightbox-close" class="lightbox-close" aria-label="Cerrar">×</button>
+  <img id="lightbox-image" src="" alt="">
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/lightbox.js' %}"></script>
+{% endblock %}

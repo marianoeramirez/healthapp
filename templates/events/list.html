@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Eventos · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Eventos de salud</h1>
+    <p>Hitos, enfermedades, cirugías y otros episodios importantes.</p>
+  </div>
+  <a class="btn" href="{% url 'events:add' %}">Añadir evento</a>
+</div>
+
+<section class="panel" style="margin-bottom: 1rem;">
+  <form method="get" class="filter-bar">
+    <select name="person">
+      <option value="">Todas las personas</option>
+      {% for person in people %}
+      <option value="{{ person.pk }}" {% if filters.person == person.pk|stringformat:"s" %}selected{% endif %}>{{ person }}</option>
+      {% endfor %}
+    </select>
+    <select name="event_type">
+      <option value="">Todos los tipos</option>
+      {% for value, label in event_types %}
+      <option value="{{ value }}" {% if filters.event_type == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="severity">
+      <option value="">Cualquier gravedad</option>
+      {% for value, label in severities %}
+      <option value="{{ value }}" {% if filters.severity == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <input type="date" name="from" value="{{ filters.from }}" title="Desde">
+    <input type="date" name="to" value="{{ filters.to }}" title="Hasta">
+    <button class="btn" type="submit">Filtrar</button>
+    <a class="btn btn-secondary" href="{% url 'events:list' %}">Limpiar</a>
+  </form>
+</section>
+
+<section class="panel">
+  {% if events %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Título</th>
+        <th>Persona</th>
+        <th>Tipo</th>
+        <th>Gravedad</th>
+        <th>Exámenes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td>{{ event.occurred_on|date:"d/m/Y" }}</td>
+        <td><a href="{% url 'events:detail' event.pk %}">{{ event.title }}</a></td>
+        <td><a href="{% url 'people:detail' event.person_id %}">{{ event.person }}</a></td>
+        <td>{{ event.get_event_type_display }}</td>
+        <td><span class="badge {{ event.severity }}">{{ event.get_severity_display }}</span></td>
+        <td>{{ event.exam_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay eventos con estos filtros.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}{{ person }} · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div style="display: flex; gap: 1rem; align-items: center;">
+    {% if person.avatar %}
+    <img class="avatar" src="{{ person.avatar.url }}" alt="{{ person }}">
+    {% else %}
+    <div class="avatar-fallback" aria-hidden="true">{{ person.initials }}</div>
+    {% endif %}
+    <div>
+      <h1>{{ person }}</h1>
+      <p>
+        {% if person.birth_date %}
+          Nacimiento {{ person.birth_date|date:"d/m/Y" }}
+          {% if person.age is not None %}· {{ person.age }} años{% endif %}
+        {% else %}
+          Sin fecha de nacimiento
+        {% endif %}
+        {% if person.blood_type %}· Grupo {{ person.blood_type }}{% endif %}
+      </p>
+    </div>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-secondary" href="{% url 'events:add' %}?person={{ person.pk }}">Añadir evento</a>
+    <a class="btn btn-secondary" href="{% url 'exams:upload' %}?person={{ person.pk }}">Subir examen</a>
+    <a class="btn" href="{% url 'people:edit' person.pk %}">Editar</a>
+  </div>
+</div>
+
+{% if person.notes %}
+<section class="panel" style="margin-bottom: 1.25rem;">
+  <h2 style="margin-top: 0; font-size: 1.1rem;">Notas / alergias</h2>
+  <p style="margin: 0; white-space: pre-wrap;">{{ person.notes }}</p>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 style="margin-top: 0;">Línea de tiempo</h2>
+  {% if timeline %}
+  <ol class="timeline">
+    {% for item in timeline %}
+      {% if item.kind == 'event' %}
+      <li class="timeline-item">
+        <div class="timeline-date">{{ item.date|date:"d/m/Y" }}</div>
+        <strong><a href="{% url 'events:detail' item.event.pk %}">{{ item.event.title }}</a></strong>
+        <div class="chip-row" style="margin: 0.4rem 0 0;">
+          <span class="badge">{{ item.event.get_event_type_display }}</span>
+          <span class="badge {{ item.event.severity }}">{{ item.event.get_severity_display }}</span>
+        </div>
+        {% if item.event.description %}
+        <p style="color: var(--muted);">{{ item.event.description|truncatewords:40 }}</p>
+        {% endif %}
+        {% if item.exams %}
+        <div class="nested-exams">
+          <strong>Exámenes vinculados</strong>
+          <ul>
+            {% for exam in item.exams %}
+            <li>
+              <a href="{% url 'exams:detail' exam.pk %}">{{ exam.title }}</a>
+              · {{ exam.performed_on|date:"d/m/Y" }}
+              · {{ exam.get_exam_type_display }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </li>
+      {% else %}
+      <li class="timeline-item exam">
+        <div class="timeline-date">{{ item.date|date:"d/m/Y" }}</div>
+        <strong><a href="{% url 'exams:detail' item.exam.pk %}">{{ item.exam.title }}</a></strong>
+        <div class="chip-row" style="margin: 0.4rem 0 0;">
+          <span class="badge">{{ item.exam.get_exam_type_display }}</span>
+          <span class="badge">Examen</span>
+        </div>
+        {% if item.exam.summary %}
+        <p style="color: var(--muted);">{{ item.exam.summary|truncatewords:30 }}</p>
+        {% endif %}
+      </li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">Todavía no hay eventos ni exámenes para esta persona.</p>
+  {% endif %}
+</section>
+{% endblock %}

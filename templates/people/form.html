@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ page_title }}</h1>
+    <p>Datos básicos del miembro de la familia.</p>
+  </div>
+</div>
+
+<section class="panel">
+  <form method="post" enctype="multipart/form-data" class="form-grid">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<small style="color: var(--muted);">{{ field.help_text }}</small>{% endif %}
+      {{ field.errors }}
+    </div>
+    {% endfor %}
+    <div class="form-actions">
+      <button class="btn" type="submit">Guardar</button>
+      <a class="btn btn-secondary" href="{% url 'people:list' %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

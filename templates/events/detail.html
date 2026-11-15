@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ event.title }} · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ event.title }}</h1>
+    <p>
+      <a href="{% url 'people:detail' event.person_id %}">{{ event.person }}</a>
+      · {{ event.occurred_on|date:"d/m/Y" }}
+    </p>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-secondary" href="{% url 'exams:upload' %}?person={{ event.person_id }}&event={{ event.pk }}">Vincular examen</a>
+    <a class="btn" href="{% url 'events:edit' event.pk %}">Editar</a>
+  </div>
+</div>
+
+<section class="panel" style="margin-bottom: 1.25rem;">
+  <div class="chip-row">
+    <span class="badge">{{ event.get_event_type_display }}</span>
+    <span class="badge {{ event.severity }}">{{ event.get_severity_display }}</span>
+  </div>
+  {% if event.description %}
+  <p style="white-space: pre-wrap; margin-bottom: 0;">{{ event.description }}</p>
+  {% else %}
+  <p class="empty" style="padding: 0;">Sin descripción.</p>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2 style="margin-top: 0;">Exámenes e informes vinculados</h2>
+  {% if event.exams.all %}
+  <div class="attachment-list">
+    {% for exam in event.exams.all %}
+    <article class="attachment-card">
+      <strong><a href="{% url 'exams:detail' exam.pk %}">{{ exam.title }}</a></strong>
+      <div class="meta-row">
+        <span>{{ exam.performed_on|date:"d/m/Y" }}</span>
+        <span>{{ exam.get_exam_type_display }}</span>
+        {% if exam.provider %}<span>{{ exam.provider }}</span>{% endif %}
+      </div>
+      {% if exam.summary %}
+      <p style="color: var(--muted); margin: 0 0 0.75rem;">{{ exam.summary|truncatewords:40 }}</p>
+      {% endif %}
+      {% if exam.attachments.all %}
+      <ul>
+        {% for attachment in exam.attachments.all %}
+        <li>
+          <a href="{{ attachment.file.url }}" {% if attachment.is_image %}data-lightbox{% endif %} target="_blank" rel="noopener">
+            {{ attachment.label|default:attachment.file.name }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">Todavía no hay exámenes vinculados a este evento.</p>
+  {% endif %}
+</section>
+
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <button type="button" id="lightbox-close" class="lightbox-close" aria-label="Cerrar">×</button>
+  <img id="lightbox-image" src="" alt="">
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/lightbox.js' %}"></script>
+{% endblock %}

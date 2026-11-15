@@ -1,0 +1,44 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Salud familiar{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% if user.is_authenticated %}
+  <header class="site-header">
+    <a class="brand" href="{% url 'people:list' %}">Salud familiar</a>
+    <nav class="nav">
+      <a href="{% url 'people:list' %}" class="{% if request.resolver_match.namespace == 'people' %}active{% endif %}">Personas</a>
+      <a href="{% url 'events:list' %}" class="{% if request.resolver_match.namespace == 'events' %}active{% endif %}">Eventos</a>
+      <a href="{% url 'doctors:list' %}" class="{% if request.resolver_match.namespace == 'doctors' %}active{% endif %}">Médicos</a>
+      <a href="{% url 'exams:list' %}" class="{% if request.resolver_match.namespace == 'exams' %}active{% endif %}">Exámenes</a>
+    </nav>
+    <div class="user-meta">
+      <span>{{ user.get_username }}</span>
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button class="btn btn-secondary" type="submit">Salir</button>
+      </form>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="container">
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

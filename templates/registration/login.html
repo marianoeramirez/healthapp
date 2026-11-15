@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesión · Salud familiar{% endblock %}
+
+{% block content %}
+<section class="panel" style="max-width: 420px; margin: 3rem auto;">
+  <h1>Iniciar sesión</h1>
+  <p style="color: var(--muted);">Accede para gestionar el historial de salud de tu familia.</p>
+  <form method="post" class="form-grid" style="margin-top: 1.25rem;">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    </div>
+    {% endfor %}
+    <div class="form-actions">
+      <button class="btn" type="submit">Entrar</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

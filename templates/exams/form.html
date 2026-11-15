@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ page_title }}</h1>
+    <p>Datos del examen y archivos PDF o imágenes.</p>
+  </div>
+</div>
+
+<section class="panel">
+  <form method="post" enctype="multipart/form-data" class="form-grid">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.name == 'doctor' %}
+      <p style="margin: 0.35rem 0 0;">
+        <a href="{% url 'doctors:add' %}?next={{ request.get_full_path|urlencode }}">Añadir médico</a>
+      </p>
+      {% endif %}
+      {% if field.help_text %}<small style="color: var(--muted);">{{ field.help_text }}</small>{% endif %}
+      {{ field.errors }}
+    </div>
+    {% endfor %}
+
+    <div>
+      <h2 style="margin: 0 0 0.75rem; font-size: 1.1rem;">Adjuntos</h2>
+      <div id="upload-dropzone" class="upload-dropzone">
+        Arrastra archivos aquí o haz clic para seleccionarlos (PDF e imágenes).
+      </div>
+      {{ formset.management_form }}
+      <div id="attachment-formset">
+        {% for f in formset %}
+        <div class="attachment-form panel" style="box-shadow: none; margin-bottom: 0.75rem;">
+          {{ f.id }}
+          {% for field in f.visible_fields %}
+          <div style="margin-bottom: 0.75rem;">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+          </div>
+          {% endfor %}
+          {% if f.instance.pk and f.DELETE %}
+          <label>{{ f.DELETE }} Eliminar</label>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {{ formset.non_form_errors }}
+    </div>
+
+    <div class="form-actions">
+      <button class="btn" type="submit">Guardar</button>
+      <a class="btn btn-secondary" href="{% url 'exams:list' %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ events_by_person|json_script:"events-by-person-data" }}
+<script>
+  window.EVENTS_BY_PERSON = JSON.parse(
+    document.getElementById("events-by-person-data").textContent
+  );
+</script>
+<script src="{% static 'js/upload.js' %}"></script>
+{% endblock %}

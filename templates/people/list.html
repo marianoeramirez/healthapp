@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Personas · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Personas</h1>
+    <p>Miembros de la familia y un resumen de su historial.</p>
+  </div>
+  <a class="btn" href="{% url 'people:add' %}">Añadir persona</a>
+</div>
+
+{% if people %}
+<div class="card-grid">
+  {% for person in people %}
+  <article class="person-card">
+    <div class="person-card-top">
+      {% if person.avatar %}
+      <img class="avatar" src="{{ person.avatar.url }}" alt="{{ person }}">
+      {% else %}
+      <div class="avatar-fallback" aria-hidden="true">{{ person.initials }}</div>
+      {% endif %}
+      <div>
+        <h2 style="margin: 0; font-size: 1.15rem;">
+          <a href="{% url 'people:detail' person.pk %}">{{ person }}</a>
+        </h2>
+        <div style="color: var(--muted); font-size: 0.9rem;">
+          {% if person.birth_date %}
+            {{ person.birth_date|date:"d/m/Y" }}
+            {% if person.age is not None %}· {{ person.age }} años{% endif %}
+          {% else %}
+            Sin fecha de nacimiento
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="stats">
+      <span>{{ person.event_count }} evento{{ person.event_count|pluralize:"s" }}</span>
+      <span>{{ person.exam_count }} examen{{ person.exam_count|pluralize:"es" }}</span>
+    </div>
+    <div class="form-actions">
+      <a class="btn btn-secondary" href="{% url 'people:detail' person.pk %}">Ver perfil</a>
+      <a class="btn btn-secondary" href="{% url 'people:edit' person.pk %}">Editar</a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">Todavía no hay personas. Añade el primer miembro de la familia.</p>
+{% endif %}
+{% endblock %}

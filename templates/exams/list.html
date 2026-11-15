@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Exámenes · Salud familiar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Exámenes e informes</h1>
+    <p>Laboratorios, imágenes, revisiones e informes.</p>
+  </div>
+  <a class="btn" href="{% url 'exams:upload' %}">Subir examen</a>
+</div>
+
+<section class="panel" style="margin-bottom: 1rem;">
+  <form method="get" class="filter-bar">
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="Buscar título, resumen o proveedor">
+    <select name="person">
+      <option value="">Todas las personas</option>
+      {% for person in people %}
+      <option value="{{ person.pk }}" {% if filters.person == person.pk|stringformat:"s" %}selected{% endif %}>{{ person }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">Buscar</button>
+    <a class="btn btn-secondary" href="{% url 'exams:list' %}">Limpiar</a>
+  </form>
+  <div class="chip-row">
+    <a class="chip {% if not filters.exam_type %}active{% endif %}" href="?q={{ filters.q }}&person={{ filters.person }}">Todos</a>
+    {% for value, label in exam_types %}
+    <a class="chip {% if filters.exam_type == value %}active{% endif %}" href="?q={{ filters.q }}&person={{ filters.person }}&exam_type={{ value }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  {% if exams %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Título</th>
+        <th>Persona</th>
+        <th>Médico</th>
+        <th>Tipo</th>
+        <th>Evento</th>
+        <th>Proveedor</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for exam in exams %}
+      <tr>
+        <td>{{ exam.performed_on|date:"d/m/Y" }}</td>
+        <td><a href="{% url 'exams:detail' exam.pk %}">{{ exam.title }}</a></td>
+        <td><a href="{% url 'people:detail' exam.person_id %}">{{ exam.person }}</a></td>
+        <td>
+          {% if exam.doctor %}
+          <a href="{% url 'doctors:detail' exam.doctor_id %}">{{ exam.doctor }}</a>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+        <td>{{ exam.get_exam_type_display }}</td>
+        <td>
+          {% if exam.event %}
+          <a href="{% url 'events:detail' exam.event_id %}">{{ exam.event.title }}</a>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+        <td>{{ exam.provider|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay exámenes con estos filtros.</p>
+  {% endif %}
+</section>
+{% endblock %}
